@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+
+# Reddit data (too large - see README for how to download)
+reddit/
+*.torrent
+*.aria2
+*.ndjson
+*.zst
+
+# Intermediate files
+chart-only.html
