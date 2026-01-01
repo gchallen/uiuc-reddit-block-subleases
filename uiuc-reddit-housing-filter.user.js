@@ -1,15 +1,14 @@
 // ==UserScript==
 // @name         UIUC Reddit Housing Filter
 // @namespace    http://tampermonkey.net/
-// @version      1.1
+// @version      1.2
 // @description  Hide sublease and housing-related posts on r/UIUC
 // @author       You
 // @match        https://www.reddit.com/r/UIUC/*
 // @match        https://old.reddit.com/r/UIUC/*
 // @match        https://new.reddit.com/r/UIUC/*
 // @match        https://sh.reddit.com/r/UIUC/*
-// @grant        GM_getValue
-// @grant        GM_setValue
+// @grant        none
 // ==/UserScript==
 
 (function() {
@@ -103,7 +102,140 @@
         });
     }
 
-    function createToggleUI() {
+    function createCheckbox(id, checked, onChange) {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = id;
+        checkbox.checked = checked;
+        checkbox.addEventListener('change', onChange);
+        return checkbox;
+    }
+
+    function handleToggle(e) {
+        showHousing = e.target.checked;
+        localStorage.setItem(STORAGE_KEY, showHousing);
+        updateAllPosts();
+        console.log('[UIUC Housing Filter] Show housing:', showHousing);
+    }
+
+    function createToggleForNewReddit() {
+        // Look for the sidebar community info section
+        const sidebar = document.querySelector('aside[aria-label="Subreddit sidebar"], #right-sidebar, aside');
+        if (!sidebar || document.getElementById('uiuc-housing-filter-toggle')) return false;
+
+        // Find the community description or first widget
+        const targetSelectors = [
+            'shreddit-subreddit-header-community-information',
+            '[data-testid="subreddit-sidebar"]',
+            'div[class*="sidebar"]',
+            'aside > div'
+        ];
+
+        let target = null;
+        for (const selector of targetSelectors) {
+            target = sidebar.querySelector(selector);
+            if (target) break;
+        }
+
+        if (!target) {
+            target = sidebar.firstElementChild;
+        }
+
+        if (!target) return false;
+
+        // Create container matching new Reddit style
+        const container = document.createElement('div');
+        container.id = 'uiuc-housing-filter-toggle';
+        container.style.cssText = `
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            background: var(--color-neutral-background-weak, #f6f7f8);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: inherit;
+            font-size: 14px;
+        `;
+
+        const checkbox = createCheckbox('uiuc-housing-toggle', showHousing, handleToggle);
+        checkbox.style.cssText = `
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #ff4500;
+        `;
+
+        const label = document.createElement('label');
+        label.htmlFor = 'uiuc-housing-toggle';
+        label.textContent = 'Show Housing Posts';
+        label.style.cssText = `
+            cursor: pointer;
+            user-select: none;
+            color: var(--color-neutral-content, #1c1c1c);
+            font-weight: 500;
+        `;
+
+        container.appendChild(checkbox);
+        container.appendChild(label);
+
+        target.parentNode.insertBefore(container, target);
+        return true;
+    }
+
+    function createToggleForOldReddit() {
+        // Old Reddit sidebar
+        const sidebar = document.querySelector('.side');
+        if (!sidebar || document.getElementById('uiuc-housing-filter-toggle')) return false;
+
+        // Find the titlebox (subreddit description area)
+        const titlebox = sidebar.querySelector('.titlebox');
+        if (!titlebox) return false;
+
+        // Create container matching old Reddit style
+        const container = document.createElement('div');
+        container.id = 'uiuc-housing-filter-toggle';
+        container.className = 'spacer';
+        container.style.cssText = `
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #f6f7f8;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        `;
+
+        const checkbox = createCheckbox('uiuc-housing-toggle', showHousing, handleToggle);
+        checkbox.style.cssText = `
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        `;
+
+        const label = document.createElement('label');
+        label.htmlFor = 'uiuc-housing-toggle';
+        label.textContent = 'Show Housing Posts';
+        label.style.cssText = `
+            cursor: pointer;
+            user-select: none;
+            color: #333;
+            font-weight: bold;
+        `;
+
+        container.appendChild(checkbox);
+        container.appendChild(label);
+
+        titlebox.parentNode.insertBefore(container, titlebox);
+        return true;
+    }
+
+    function createToggleFallback() {
+        // Fallback: floating UI if sidebar injection fails
+        if (document.getElementById('uiuc-housing-filter-toggle')) return;
+
         const container = document.createElement('div');
         container.id = 'uiuc-housing-filter-toggle';
         container.style.cssText = `
@@ -123,10 +255,7 @@
             gap: 8px;
         `;
 
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = 'uiuc-housing-toggle';
-        checkbox.checked = showHousing;
+        const checkbox = createCheckbox('uiuc-housing-toggle', showHousing, handleToggle);
         checkbox.style.cssText = `
             width: 16px;
             height: 16px;
@@ -142,23 +271,51 @@
             color: #333;
         `;
 
-        checkbox.addEventListener('change', () => {
-            showHousing = checkbox.checked;
-            localStorage.setItem(STORAGE_KEY, showHousing);
-            updateAllPosts();
-            console.log('[UIUC Housing Filter] Show housing:', showHousing);
-        });
-
         container.appendChild(checkbox);
         container.appendChild(label);
         document.body.appendChild(container);
     }
 
-    // Create the toggle UI
-    createToggleUI();
+    function createToggleUI() {
+        // Try sidebar injection first, fall back to floating UI
+        const isOldReddit = window.location.hostname === 'old.reddit.com' || document.querySelector('.side');
 
-    // Initial processing
-    processPosts();
+        if (isOldReddit) {
+            if (!createToggleForOldReddit()) {
+                createToggleFallback();
+            }
+        } else {
+            if (!createToggleForNewReddit()) {
+                createToggleFallback();
+            }
+        }
+    }
+
+    // Initial setup with retry for dynamic sidebar loading
+    function init() {
+        processPosts();
+
+        // Try to create toggle immediately
+        createToggleUI();
+
+        // Retry a few times for dynamically loaded sidebars
+        let retries = 0;
+        const retryInterval = setInterval(() => {
+            if (document.getElementById('uiuc-housing-filter-toggle') || retries > 10) {
+                clearInterval(retryInterval);
+                return;
+            }
+            createToggleUI();
+            retries++;
+        }, 500);
+    }
+
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
     // Watch for dynamically loaded content (infinite scroll)
     const observer = new MutationObserver((mutations) => {
@@ -171,6 +328,10 @@
         }
         if (shouldProcess) {
             processPosts();
+            // Also try to add toggle if sidebar was dynamically loaded
+            if (!document.getElementById('uiuc-housing-filter-toggle')) {
+                createToggleUI();
+            }
         }
     });
 
