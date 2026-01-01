@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UIUC Reddit Housing Filter
 // @namespace    http://tampermonkey.net/
-// @version      1.2
+// @version      1.3
 // @description  Hide sublease and housing-related posts on r/UIUC
 // @author       You
 // @match        https://www.reddit.com/r/UIUC/*
@@ -119,26 +119,20 @@
     }
 
     function createToggleForNewReddit() {
-        // Look for the sidebar community info section
-        const sidebar = document.querySelector('aside[aria-label="Subreddit sidebar"], #right-sidebar, aside');
-        if (!sidebar || document.getElementById('uiuc-housing-filter-toggle')) return false;
+        if (document.getElementById('uiuc-housing-filter-toggle')) return true;
 
-        // Find the community description or first widget
+        // Find the subreddit title in the sidebar
         const targetSelectors = [
-            'shreddit-subreddit-header-community-information',
-            '[data-testid="subreddit-sidebar"]',
-            'div[class*="sidebar"]',
-            'aside > div'
+            '#title.i18n-subreddit-title',
+            '.i18n-subreddit-title',
+            '#right-sidebar #title',
+            'aside #title'
         ];
 
         let target = null;
         for (const selector of targetSelectors) {
-            target = sidebar.querySelector(selector);
+            target = document.querySelector(selector);
             if (target) break;
-        }
-
-        if (!target) {
-            target = sidebar.firstElementChild;
         }
 
         if (!target) return false;
