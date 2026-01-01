@@ -138,4 +138,18 @@ This project was built in about 20 minutes through a conversation with [Claude C
 
 **Claude:** *[Added Greasy Fork publishing instructions and timing]*
 
-The entire project—userscript, data analysis, chart generation, and documentation—was created in about 20 minutes through natural language conversation.
+**Human:** Let's also add a checkbox to the UI to enable/disable the filter. Call it "Show Housing" and have it be disabled by default.
+
+**Claude:** *[Added floating toggle UI with localStorage persistence]*
+
+**Human:** Is there a way to stick it in the subreddit sidebar? Maybe above "The University of Illinois at Urbana-Champaign"? And have it match the page styling?
+
+**Claude:** *[Attempted sidebar injection - initially failed because new Reddit uses Shadow DOM]*
+
+**Human:** I still see it floating...
+
+**Claude:** *[After several debugging rounds, discovered the element was inside a Shadow DOM web component. Added deepQuery() helper to pierce shadow boundaries, then fixed duplicate insertion by placing toggle in the light DOM sidebar container]*
+
+**Human:** Beautiful! It works nicely now.
+
+The entire project—userscript, data analysis, chart generation, toggle UI with Shadow DOM handling, and documentation—was created in a single session through natural language conversation. The debugging process for the Shadow DOM issue demonstrated collaborative problem-solving: the human provided console output and HTML snippets while Claude iterated on solutions until it worked.
