@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UIUC Reddit Housing Filter
 // @namespace    http://tampermonkey.net/
-// @version      1.6
+// @version      1.7
 // @description  Hide sublease and housing-related posts on r/UIUC
 // @author       You
 // @match        https://www.reddit.com/r/UIUC/*
@@ -141,26 +141,17 @@
     function createToggleForNewReddit() {
         if (document.getElementById('uiuc-housing-filter-toggle')) return true;
 
-        // Find the subreddit title in the sidebar (may be in Shadow DOM)
-        const targetSelectors = [
-            '#title.i18n-subreddit-title',
-            '.i18n-subreddit-title',
-            '#title'
-        ];
+        // Find the right sidebar container (outside Shadow DOM)
+        const sidebar = document.getElementById('right-sidebar-container')
+            || document.querySelector('aside[aria-label]')
+            || document.querySelector('#right-sidebar');
 
-        let target = null;
-        for (const selector of targetSelectors) {
-            target = deepQuery(selector);
-            console.log('[UIUC Housing Filter] Trying selector:', selector, '- Found:', !!target);
-            if (target) break;
-        }
-
-        if (!target) {
-            console.log('[UIUC Housing Filter] No sidebar target found yet');
+        if (!sidebar) {
+            console.log('[UIUC Housing Filter] No sidebar container found yet');
             return false;
         }
 
-        console.log('[UIUC Housing Filter] Found target:', target);
+        console.log('[UIUC Housing Filter] Found sidebar:', sidebar);
 
         // Create container matching new Reddit style
         const container = document.createElement('div');
@@ -198,7 +189,9 @@
         container.appendChild(checkbox);
         container.appendChild(label);
 
-        target.parentNode.insertBefore(container, target);
+        // Insert at the top of the sidebar
+        sidebar.insertBefore(container, sidebar.firstChild);
+        console.log('[UIUC Housing Filter] Toggle inserted successfully');
         return true;
     }
 
