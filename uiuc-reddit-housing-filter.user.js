@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UIUC Reddit Housing Filter
 // @namespace    http://tampermonkey.net/
-// @version      1.4
+// @version      1.5
 // @description  Hide sublease and housing-related posts on r/UIUC
 // @author       You
 // @match        https://www.reddit.com/r/UIUC/*
@@ -235,9 +235,15 @@
     }
 
     function createToggleUI() {
-        if (document.getElementById('uiuc-housing-filter-toggle')) return true;
+        console.log('[UIUC Housing Filter] createToggleUI() called');
+
+        if (document.getElementById('uiuc-housing-filter-toggle')) {
+            console.log('[UIUC Housing Filter] Toggle already exists, skipping');
+            return true;
+        }
 
         const isOldReddit = window.location.hostname === 'old.reddit.com' || document.querySelector('.side');
+        console.log('[UIUC Housing Filter] isOldReddit:', isOldReddit);
 
         if (isOldReddit) {
             return createToggleForOldReddit();
@@ -248,9 +254,19 @@
 
     // Initial setup with retry for dynamic sidebar loading
     function init() {
+        console.log('[UIUC Housing Filter] init() called');
+
+        // Check if old floating toggle exists and remove it
+        const oldToggle = document.getElementById('uiuc-housing-filter-toggle');
+        if (oldToggle) {
+            console.log('[UIUC Housing Filter] Removing old toggle');
+            oldToggle.remove();
+        }
+
         processPosts();
 
         // Try to create toggle immediately
+        console.log('[UIUC Housing Filter] Calling createToggleUI()');
         createToggleUI();
 
         // Retry a few times for dynamically loaded sidebars
