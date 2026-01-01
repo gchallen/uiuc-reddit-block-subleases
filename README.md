@@ -26,6 +26,19 @@ Housing posts (subleases, roommate searches, etc.) make up a significant portion
 5. Copy and paste the contents of `uiuc-reddit-housing-filter.user.js`
 6. Save (Ctrl+S / Cmd+S)
 
+## Publishing to Greasy Fork
+
+To share this script with others via [Greasy Fork](https://greasyfork.org/):
+
+1. Create an account at [greasyfork.org](https://greasyfork.org/)
+2. Click "Submit a script" in the navigation
+3. Either:
+   - **Paste code directly**: Copy the contents of `uiuc-reddit-housing-filter.user.js`
+   - **Link to GitHub**: Point to the raw file URL for automatic updates
+4. Fill in the description and submit
+
+Once published, users can install with one click directly from Greasy Fork.
+
 ## What Gets Filtered
 
 The script hides posts matching these patterns (case-insensitive):
@@ -85,7 +98,7 @@ MIT
 
 ## How This Was Built
 
-This project was built entirely through a conversation with [Claude Code](https://claude.ai/code), Anthropic's AI coding assistant. Here's the conversation that created it:
+This project was built in about 20 minutes through a conversation with [Claude Code](https://claude.ai/code), Anthropic's AI coding assistant. Here's the conversation that created it:
 
 **Human:** Please create a Tampermonkey / Greasmonkey script to block sublease-related posts on the UIUC Reddit sub. You should identify these as any that include "sublease" in the title, for now, case-insensitive and include partial matches. Actually, is there any way to get the list of Reddit post titles for this sub for the past, say, few months so that we can design a good filter?
 
@@ -117,4 +130,12 @@ This project was built entirely through a conversation with [Claude Code](https:
 
 **Claude:** *[Used Puppeteer to render and screenshot the chart]*
 
-The entire project—userscript, data analysis, chart generation, and documentation—was created in a single coding session through natural language conversation.
+**Human:** Can we clean up the repository and document what we did together? And what files should we keep? The Reddit data files may be too large to check in, but it would be nice to have a tool to rebuild the graphs.
+
+**Claude:** *[Created .gitignore, cleaned up large files, wrote README with rebuild instructions]*
+
+**Human:** Can you add how long the process took? Oh, and can you add instructions on how to publish this to a site that hosts Tampermonkey scripts?
+
+**Claude:** *[Added Greasy Fork publishing instructions and timing]*
+
+The entire project—userscript, data analysis, chart generation, and documentation—was created in about 20 minutes through natural language conversation.
