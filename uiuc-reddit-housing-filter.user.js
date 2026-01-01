@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UIUC Reddit Housing Filter
 // @namespace    http://tampermonkey.net/
-// @version      1.5
+// @version      1.6
 // @description  Hide sublease and housing-related posts on r/UIUC
 // @author       You
 // @match        https://www.reddit.com/r/UIUC/*
@@ -118,22 +118,39 @@
         console.log('[UIUC Housing Filter] Show housing:', showHousing);
     }
 
+    // Helper to query inside shadow DOMs
+    function deepQuery(selector) {
+        // First try regular query
+        let result = document.querySelector(selector);
+        if (result) return result;
+
+        // Search inside shadow roots
+        const allElements = document.querySelectorAll('*');
+        for (const el of allElements) {
+            if (el.shadowRoot) {
+                result = el.shadowRoot.querySelector(selector);
+                if (result) {
+                    console.log('[UIUC Housing Filter] Found in shadow root of:', el.tagName);
+                    return result;
+                }
+            }
+        }
+        return null;
+    }
+
     function createToggleForNewReddit() {
         if (document.getElementById('uiuc-housing-filter-toggle')) return true;
 
-        // Find the subreddit title in the sidebar
+        // Find the subreddit title in the sidebar (may be in Shadow DOM)
         const targetSelectors = [
             '#title.i18n-subreddit-title',
             '.i18n-subreddit-title',
-            '#right-sidebar #title',
-            'aside #title',
-            'shreddit-subreddit-header #title',
-            '[id="right-sidebar-container"] #title'
+            '#title'
         ];
 
         let target = null;
         for (const selector of targetSelectors) {
-            target = document.querySelector(selector);
+            target = deepQuery(selector);
             console.log('[UIUC Housing Filter] Trying selector:', selector, '- Found:', !!target);
             if (target) break;
         }
