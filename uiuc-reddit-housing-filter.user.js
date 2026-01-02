@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UIUC Reddit Housing Filter
 // @namespace    http://tampermonkey.net/
-// @version      1.7
+// @version      1.8
 // @description  Hide sublease and housing-related posts on r/UIUC
 // @author       You
 // @match        https://www.reddit.com/r/UIUC/*
@@ -43,12 +43,20 @@
         /\dbd\b/i,
     ];
 
+    // Housing-related flairs (case-insensitive)
+    const HOUSING_FLAIRS = [
+        /subleas/i,
+        /housing/i,
+        /roommate/i,
+    ];
+
     // Get stored preference (default: false = hide housing posts)
     let showHousing = localStorage.getItem(STORAGE_KEY) === 'true';
 
-    function shouldHidePost(title) {
-        if (!title) return false;
-        return HOUSING_PATTERNS.some(pattern => pattern.test(title));
+    function shouldHidePost(title, flair) {
+        const titleMatch = title && HOUSING_PATTERNS.some(pattern => pattern.test(title));
+        const flairMatch = flair && HOUSING_FLAIRS.some(pattern => pattern.test(flair));
+        return titleMatch || flairMatch;
     }
 
     function updatePostVisibility(post, isHousingPost) {
@@ -63,12 +71,16 @@
             const titleElement = post.querySelector('a[slot="title"], [data-testid="post-title"], h3, [slot="title"]');
             const title = titleElement?.textContent || post.getAttribute('post-title') || '';
 
-            if (shouldHidePost(title)) {
+            // Get flair from various possible locations
+            const flairElement = post.querySelector('flair-text, [slot="flair"], shreddit-post-flair, [data-testid="flair"]');
+            const flair = flairElement?.textContent || post.getAttribute('flair-text') || '';
+
+            if (shouldHidePost(title, flair)) {
                 post.dataset.housingPost = 'true';
                 updatePostVisibility(post, true);
                 if (!post.dataset.housingLogged) {
                     post.dataset.housingLogged = 'true';
-                    console.log('[UIUC Housing Filter] Housing post:', title);
+                    console.log('[UIUC Housing Filter] Housing post:', title, flair ? `[${flair}]` : '');
                 }
             }
         });
@@ -80,12 +92,16 @@
             const titleElement = post.querySelector('a.title');
             const title = titleElement?.textContent || '';
 
-            if (shouldHidePost(title)) {
+            // Get flair from old Reddit
+            const flairElement = post.querySelector('.linkflairlabel, .flair');
+            const flair = flairElement?.textContent || '';
+
+            if (shouldHidePost(title, flair)) {
                 post.dataset.housingPost = 'true';
                 updatePostVisibility(post, true);
                 if (!post.dataset.housingLogged) {
                     post.dataset.housingLogged = 'true';
-                    console.log('[UIUC Housing Filter] Housing post:', title);
+                    console.log('[UIUC Housing Filter] Housing post:', title, flair ? `[${flair}]` : '');
                 }
             }
         });
