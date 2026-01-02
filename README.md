@@ -4,7 +4,7 @@ A Tampermonkey/Greasemonkey userscript to hide sublease and housing-related post
 
 ![Housing Posts on r/UIUC Over Time](housing-posts-chart.png)
 
-[View interactive chart](https://gchallen.github.io/uiuc-reddit-block-subleases/)
+[View interactive chart](https://raw.githack.com/gchallen/uiuc-reddit-block-subleases/main/housing-analysis.html)
 
 ## Why?
 
