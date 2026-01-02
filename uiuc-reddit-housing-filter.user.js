@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         UIUC Reddit Housing Filter
 // @namespace    http://tampermonkey.net/
-// @version      1.9
+// @version      2.0
 // @description  Userscript to hide sublease and housing-related posts on r/UIUC
 // @author       You
 // @match        https://www.reddit.com/r/UIUC/*
@@ -145,10 +145,7 @@
         for (const el of allElements) {
             if (el.shadowRoot) {
                 result = el.shadowRoot.querySelector(selector);
-                if (result) {
-                    console.log('[UIUC Housing Filter] Found in shadow root of:', el.tagName);
-                    return result;
-                }
+                if (result) return result;
             }
         }
         return null;
@@ -162,12 +159,7 @@
             || document.querySelector('aside[aria-label]')
             || document.querySelector('#right-sidebar');
 
-        if (!sidebar) {
-            console.log('[UIUC Housing Filter] No sidebar container found yet');
-            return false;
-        }
-
-        console.log('[UIUC Housing Filter] Found sidebar:', sidebar);
+        if (!sidebar) return false;
 
         // Create container matching new Reddit style
         const container = document.createElement('div');
@@ -207,7 +199,6 @@
 
         // Insert at the top of the sidebar
         sidebar.insertBefore(container, sidebar.firstChild);
-        console.log('[UIUC Housing Filter] Toggle inserted successfully');
         return true;
     }
 
@@ -261,16 +252,9 @@
     }
 
     function createToggleUI() {
-        console.log('[UIUC Housing Filter] createToggleUI() called');
-
-        if (document.getElementById('uiuc-housing-filter-toggle')) {
-            console.log('[UIUC Housing Filter] Toggle already exists, skipping');
-            return true;
-        }
+        if (document.getElementById('uiuc-housing-filter-toggle')) return true;
 
         const isOldReddit = window.location.hostname === 'old.reddit.com' || document.querySelector('.side');
-        console.log('[UIUC Housing Filter] isOldReddit:', isOldReddit);
-
         if (isOldReddit) {
             return createToggleForOldReddit();
         } else {
@@ -280,19 +264,11 @@
 
     // Initial setup with retry for dynamic sidebar loading
     function init() {
-        console.log('[UIUC Housing Filter] init() called');
-
         // Check if old floating toggle exists and remove it
         const oldToggle = document.getElementById('uiuc-housing-filter-toggle');
-        if (oldToggle) {
-            console.log('[UIUC Housing Filter] Removing old toggle');
-            oldToggle.remove();
-        }
+        if (oldToggle) oldToggle.remove();
 
         processPosts();
-
-        // Try to create toggle immediately
-        console.log('[UIUC Housing Filter] Calling createToggleUI()');
         createToggleUI();
 
         // Retry a few times for dynamically loaded sidebars
