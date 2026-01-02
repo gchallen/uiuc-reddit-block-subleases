@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         UIUC Reddit Housing Filter
 // @namespace    http://tampermonkey.net/
-// @version      1.8
-// @description  Hide sublease and housing-related posts on r/UIUC
+// @version      1.9
+// @description  Userscript to hide sublease and housing-related posts on r/UIUC
 // @author       You
 // @match        https://www.reddit.com/r/UIUC/*
 // @match        https://old.reddit.com/r/UIUC/*

@@ -1,14 +1,31 @@
 # UIUC Reddit Housing Filter
 
-A Tampermonkey/Greasemonkey userscript to hide sublease and housing-related posts on r/UIUC.
+A userscript to hide sublease and housing-related posts on r/UIUC. Works with [Tampermonkey](https://www.tampermonkey.net/), [Greasemonkey](https://www.greasespot.net/), [Violentmonkey](https://violentmonkey.github.io/), and other userscript managers.
 
 ![Housing Posts on r/UIUC Over Time](housing-posts-chart.png)
 
 [View interactive chart](https://gchallen.github.io/uiuc-reddit-block-subleases/)
 
+## What Gets Filtered
+
+The script hides posts matching these **title patterns** (case-insensitive):
+
+| Pattern | Examples |
+|---------|----------|
+| `sublease`, `sublet`, `sublessee` | "Spring Sublease Available", "Looking for subletter" |
+| `roommate` | "Roommate needed", "Looking for roommates" |
+| `lease takeover`, `relet` | "Take over my lease", "Relet available" |
+| `$XXX/month`, `$XXX/mo` | "$500/month near campus" |
+| `1BR`, `2B2B`, `3 bedroom` | "1BR apartment", "2B2B at 309 Green" |
+
+It also hides posts with these **flairs**:
+- `Sublease`
+- `Housing`
+- `Roommate`
+
 ## Why?
 
-Housing posts (subleases, roommate searches, etc.) make up a significant portion of r/UIUC content—sometimes exceeding 15-20% of all posts during peak seasons. This script automatically hides them so you can focus on other content.
+Housing posts make up a significant portion of r/UIUC content—sometimes exceeding 15-20% of all posts during peak seasons. This script automatically hides them so you can focus on other content.
 
 ## Installation
 
@@ -38,18 +55,6 @@ To share this script with others via [Greasy Fork](https://greasyfork.org/):
 4. Fill in the description and submit
 
 Once published, users can install with one click directly from Greasy Fork.
-
-## What Gets Filtered
-
-The script hides posts matching these patterns (case-insensitive):
-
-| Pattern | Examples |
-|---------|----------|
-| `sublease`, `sublet`, `sublessee` | "Spring Sublease Available", "Looking for subletter" |
-| `roommate` | "Roommate needed", "Looking for roommates" |
-| `lease takeover`, `relet` | "Take over my lease", "Relet available" |
-| `$XXX/month`, `$XXX/mo` | "$500/month near campus" |
-| `1BR`, `2B2B`, `3 bedroom` | "1BR apartment", "2B2B at 309 Green" |
 
 ## Debugging
 
